@@ -1,18 +1,47 @@
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
+import useAxios from "../utils/UtilAxios"
 
 
+function InspLoginPage() {
+    const api = useAxios();
+    const { loginInspector } = useContext(AuthContext)
+    const [regData, setregData] = useState([])
+    const [ctypes, setCtypes] = useState([])
+    const [region, setRegion] = useState("")
+    const [sector, setCompType] = useState("")
+    
 
-function Loginpage() {
+    useEffect(() => {
+        const fetchRegionsData = async () => {
+            try {
+                const response = await api.get("/region/")
+                setregData(response.data.response)
+            } catch (error) {
+                setregData(['Addis Ababa'])
+                console.log("Something went wrong")
+            }
+        }
+        const fetchCompTypesData = async () => {
+            try {
+                const response = await api.get("/ctypes/")
+                setCtypes(response.data.response)
+            } catch (error) {
+                setCtypes(['Water'])
+                console.log("Something went wrong")
+            }
+        }
+        fetchCompTypesData()
+        fetchRegionsData()
+    }, [])
 
-    const { loginUser } = useContext(AuthContext)
+    
     const handleSubmit = e => {
         e.preventDefault()
         const email = e.target.email.value
         const password = e.target.password.value
 
-        email.length > 0 && loginUser(email, password)
+        email.length > 0 && loginInspector(email, password, region, sector)
     }
 
     return (
@@ -60,6 +89,7 @@ function Loginpage() {
                                                             id="form2Example17"
                                                             className="form-control form-control-lg"
                                                             name='email'
+                                                            required
                                                         />
                                                         <label className="form-label" htmlFor="form2Example17">
                                                             Email address
@@ -71,10 +101,43 @@ function Loginpage() {
                                                             id="form2Example27"
                                                             className="form-control form-control-lg"
                                                             name='password'
+                                                            required
                                                         />
                                                         <label className="form-label" htmlFor="form2Example27">
                                                             Password
                                                         </label>
+                                                    </div>
+                                                    <div className="form-outline mb-4">
+                                                        <select
+                                                            id="form2Example27"
+                                                            className="form-control form-control-lg"
+                                                            onChange={e => setRegion(e.target.value)}
+                                                            required
+                                                        >
+                                                            <option value="default" selected>
+                                                                <p className="text-bg-dark">Select Region</p>
+                                                            </option>
+                                                            {
+                                                                regData.map((reg) => (
+                                                                    <option value="{reg}">{reg}</option>
+                                                                ))
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div className="form-outline mb-4">
+                                                        <select
+                                                            id="form2Example27"
+                                                            className="form-control form-control-lg"
+                                                            onChange={e => setCompType(e.target.value)}
+                                                            required
+                                                        >
+                                                            <option value="default" selected>Select Complaint type</option>
+                                                            {
+                                                                ctypes.map((ctype) => (
+                                                                    <option value="{ctype}">{ctype}</option>
+                                                                ))
+                                                            }
+                                                        </select>
                                                     </div>
                                                     <div className="pt-1 mb-4">
                                                         <button
@@ -87,12 +150,6 @@ function Loginpage() {
                                                     <a className="small text-muted" href="#!">
                                                         Forgot password?
                                                     </a>
-                                                    <p className="mb-5 pb-lg-2" style={{ color: "#393f81" }}>
-                                                        Don't have an account?{" "}
-                                                        <Link to="/register" style={{ color: "#393f81" }}>
-                                                            Register Now
-                                                        </Link>
-                                                    </p>
                                                     <a href="#!" className="small text-muted">
                                                         Terms of use.
                                                     </a>
@@ -121,4 +178,4 @@ function Loginpage() {
     )
 }
 
-export default Loginpage
+export default InspLoginPage

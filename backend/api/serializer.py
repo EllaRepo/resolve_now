@@ -1,6 +1,5 @@
-from api.models import User
+from api.models import User, Complaint, Inspector
 from django.contrib.auth.password_validation import validate_password
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -8,7 +7,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone')
+        fields = ('id', 'full_name', 'username', 'email', 'phone')
+
+class InspectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inspector
+        fields = ('id', 'full_name', 'username', 'email', 'phone', 'region', 'sector')
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -16,7 +20,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         
         # These are claims, you can add custom claims
-        token['full_name'] = user.profile.full_name
+        token['full_name'] = user.full_name
         token['username'] = user.username
         token['email'] = user.email
         token['phone'] = user.phone
@@ -25,6 +29,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
+class MyTokenObtainPairSerializer2(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, insp):
+        token = super().get_token(insp)
+        
+        # These are claims, you can add custom claims
+        token['full_name'] = insp.full_name
+        token['email'] = insp.email
+        token['phone'] = insp.phone
+        token['region'] = insp.region
+        token['sector'] = insp.sector
+
+        return token
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -33,7 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'phone', 'password', 'password2')
+        fields = ('full_name', 'email', 'username', 'phone', 'password', 'password2')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -44,6 +61,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create(
+            full_name=validated_data['full_name'],
             username=validated_data['username'],
             email=validated_data['email'],
             phone=validated_data['phone']
@@ -53,3 +71,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+    
+class ComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complaint
+        fields = ('email', 'username', 'compTitle', 'city', 'subCity', 'landmark', 'desc', 'region', 'compType', 'compSev')
+    

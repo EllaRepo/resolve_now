@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
             : null
     );
     
-
     const [user, setUser] = useState(() => 
         localStorage.getItem("authTokens")
             ? jwtDecode(localStorage.getItem("authTokens"))
@@ -59,7 +58,7 @@ export const AuthProvider = ({ children }) => {
             console.log(response.status);
             console.log("there was a server issue");
             swal.fire({
-                title: "Username or passowrd does not exists",
+                title: "Email or passowrd does not exists",
                 icon: "error",
                 toast: true,
                 timer: 6000,
@@ -70,14 +69,57 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    const registerUser = async (email, username, phone, password, password2) => {
+    const loginInspector = async (email, password, region, sector) => {
+        const response = await fetch("http://127.0.0.1:8000/api/token2/", {
+            method: "POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                email, password, region, sector
+            })
+        })
+        const data = await response.json()
+        console.log(data);
+
+        if(response.status === 200){
+            console.log("Logged In");
+            setAuthTokens(data)
+            setUser(jwtDecode(data.access))
+            localStorage.setItem("authTokens", JSON.stringify(data))
+            navigate("/dashboard")
+            swal.fire({
+                title: "Login Successful",
+                icon: "success",
+                toast: true,
+                timer: 6000,
+                position: 'top-right',
+                timerProgressBar: true,
+                showConfirmButton: false,
+            })
+
+        } else {    
+            console.log(response.status);
+            console.log("there was a server issue");
+            swal.fire({
+                title: "Email or passowrd does not exists",
+                icon: "error",
+                toast: true,
+                timer: 6000,
+                position: 'top-right',
+                timerProgressBar: true,
+                showConfirmButton: false,
+            })
+        }
+    }
+    const registerUser = async (full_name, email, username, phone, password, password2) => {
         const response = await fetch("http://127.0.0.1:8000/api/register/", {
             method: "POST",
             headers: {
                 "Content-Type":"application/json"
             },
             body: JSON.stringify({
-                email, username, phone, password, password2
+                full_name, email, username, phone, password, password2
             })
         })
         if(response.status === 201){
@@ -122,6 +164,40 @@ export const AuthProvider = ({ children }) => {
         })
     }
 
+    const registerComplaint = async (email, username, compTitle, city, subCity, landmark, region, compType, compSev, desc) => {
+        const response = await fetch("http://127.0.0.1:8000/api/postComp/", {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                email, username, compTitle, city, subCity, landmark, desc, region, compType, compSev
+            })
+        })
+        if(response.status === 201){
+            swal.fire({
+                title: "Complaint registration Successful",
+                icon: "success",
+                toast: true,
+                timer: 6000,
+                position: 'top-right',
+                timerProgressBar: true,
+                showConfirmButton: false,
+            })
+        } else {
+            console.log(response);
+            console.log("there was a server issue");
+            swal.fire({
+                title: "An Error Occured " + response.status,
+                icon: "error",
+                toast: true,
+                timer: 6000,
+                position: 'top-right',
+                timerProgressBar: true,
+                showConfirmButton: false,
+            })
+        }
+    }
     const contextData = {
         user, 
         setUser,
@@ -130,6 +206,8 @@ export const AuthProvider = ({ children }) => {
         registerUser,
         loginUser,
         logoutUser,
+        registerComplaint,
+        loginInspector,
     }
 
     useEffect(() => {

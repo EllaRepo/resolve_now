@@ -1,9 +1,10 @@
 from django.http import JsonResponse
 from api.models import User, Complaint, CompTypes, Region
 
-from api.serializer import MyTokenObtainPairSerializer, RegisterSerializer
+from api.serializer import MyTokenObtainPairSerializer, RegisterSerializer, ComplaintSerializer, MyTokenObtainPairSerializer2
 
-from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
@@ -15,11 +16,19 @@ from rest_framework.decorators import api_view, permission_classes
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
+class MyTokenObtainPairView2(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer2
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
+class ComplaintView(generics.CreateAPIView):
+    queryset = Complaint.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = ComplaintSerializer
+    
 
 # Get All Routes
 
@@ -69,6 +78,7 @@ def getCompTypes(request):
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@renderer_classes((JSONRenderer,))
 @permission_classes([IsAuthenticated])
 def complaints(request, email=None):
     print(email)
@@ -77,6 +87,5 @@ def complaints(request, email=None):
         for obj in Complaint.objects.all():
             if obj.__dict__['email'] == email:
                 cmplts.append(obj.to_dict())
-        print(cmplts)
         return Response({'response': cmplts}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)

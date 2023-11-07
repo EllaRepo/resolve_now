@@ -9,6 +9,7 @@ import LoginPage from './views/LoginPage'
 import RegisterPage from './views/RegisterPage'
 import UserLandingPage from './views/UserLandingPage'
 import Navbar from './views/Navbar'
+import InspLoginPage from './views/InspLoginPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route element={<UserLandingPage />} path="/dashboard" exact/>
           </Route>
           <Route element={<LoginPage />} path="/login" exact/>
+          <Route element={<InspLoginPage />} path="/insp_login" exact/>
           <Route element={<RegisterPage />} path="/register" exact />
           <Route element={<HomePage />} path="/" exact />
         </Routes>

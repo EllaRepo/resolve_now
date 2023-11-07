@@ -5,6 +5,7 @@ import AuthContext from '../context/AuthContext'
 
 function Registerpage() {
 
+  const [full_name, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [username, setUsername] = useState("")
   
@@ -14,16 +15,9 @@ function Registerpage() {
 
   const {registerUser} = useContext(AuthContext)
 
-  console.log(email);
-  console.log(username);
-  console.log(phone)
-  console.log(password);
-  console.log(password2);
-
-
   const handleSubmit = async e => {
     e.preventDefault()
-    registerUser(email, username, phone, password, password2)
+    registerUser(full_name, email, username, phone, password, password2)
   }
   
 
@@ -62,6 +56,16 @@ function Registerpage() {
                           >
                             Sign Up
                           </h5>
+                          <div className="form-outline mb-4">
+                            <input
+                              type="text"
+                              id="form2Example17"
+                              className="form-control form-control-lg"
+                              placeholder="Full Name"
+                              onChange={e => setFullName(e.target.value)}
+                              required
+                            />
+                          </div>
                           <div className="form-outline mb-4">
                             <input
                               type="email"

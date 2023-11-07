@@ -7,9 +7,10 @@ class User(AbstractUser):
     username = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
+    full_name = models.CharField(max_length=255)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone']
+    REQUIRED_FIELDS = ['username', 'phone', 'full_name']
 
 
     def profile(self):
@@ -17,7 +18,6 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=255)
     image = models.ImageField(upload_to="user_images", default="default.jpg")
     verified = models.BooleanField(default=False)
 
@@ -32,6 +32,10 @@ def save_user_profile(sender, instance, **kwargs):
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile, sender=User)
 
+class Inspector(User):
+    region = models.CharField(max_length=20)
+    sector = models.CharField(max_length=20)
+
 class Region(models.Model):
     name = models.CharField(max_length=20)
 
@@ -40,6 +44,7 @@ class CompTypes(models.Model):
 
 class Complaint(models.Model):
     email = models.EmailField()
+    username = models.CharField(max_length=100)
     status = models.CharField(max_length=20, default="Pending")
     compTitle = models.CharField(max_length=128)
     city = models.CharField(max_length=20)

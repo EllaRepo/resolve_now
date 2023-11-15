@@ -1,8 +1,7 @@
-from django.http import JsonResponse
+"""This module defines the views for api app
+"""
 from api.models import User, Complaint, CompTypes, Region
-
-from api.serializer import MyTokenObtainPairSerializer, RegisterSerializer, ComplaintSerializer, MyTokenObtainPairSerializer2
-
+from api.serializer import MyTokenObtainPairSerializer, RegisterPublicSerializer, ComplaintSerializer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
@@ -14,26 +13,29 @@ from rest_framework.decorators import api_view, permission_classes
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
+    """Token view
+    """
     serializer_class = MyTokenObtainPairSerializer
 
-class MyTokenObtainPairView2(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer2
-
 class RegisterView(generics.CreateAPIView):
+    """User registering view
+    """
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+    serializer_class = RegisterPublicSerializer
 
 class ComplaintView(generics.CreateAPIView):
+    """Complaint registering view
+    """
     queryset = Complaint.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = ComplaintSerializer
     
 
-# Get All Routes
-
 @api_view(['GET'])
 def getRoutes(request):
+    """ Returns available routes
+    """
     routes = [
         '/api/token/',
         '/api/register/',
@@ -45,6 +47,8 @@ def getRoutes(request):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def testEndPoint(request):
+    """Test end point for get and post method
+    """
     if request.method == 'GET':
         data = f"Congratulation {request.user}, your API just responded to GET request"
         return Response({'response': data}, status=status.HTTP_200_OK)
@@ -57,23 +61,24 @@ def testEndPoint(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getRegions(request, email=None):
-    print(email)
+    """Returns region data
+    """
     if request.method == 'GET':
         region = []
         for obj in Region.objects.all():
             region.append(obj.__dict__['name'])
-        print(region)
         return Response({'response': region}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getCompTypes(request):
+    """Returns complaints types
+    """
     if request.method == 'GET':
         ctypes = []
         for obj in CompTypes.objects.all():
             ctypes.append(obj.__dict__['name'])
-        print(ctypes)
         return Response({'response': ctypes}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
@@ -81,6 +86,8 @@ def getCompTypes(request):
 @renderer_classes((JSONRenderer,))
 @permission_classes([IsAuthenticated])
 def complaints(request, email=None):
+    """Returns complaints
+    """
     print(email)
     if request.method == 'GET':
         cmplts = []
